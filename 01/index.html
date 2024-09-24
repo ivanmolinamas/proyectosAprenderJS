@@ -253,7 +253,6 @@
 
         // get initial position of mouse or finger
         const startX = event.pageX ?? event.touches[0].pageX //para moviles es touches[0]
-        console.log(startX)
        
         // listen the mouse and touch movements
         document.addEventListener('mousemove', onMove)
@@ -280,7 +279,6 @@
             
             // apply the transformation to the card
             actualCard.style.transform = `translateX(${pullDeltaX}px) rotate(${deg}deg)`
-            console.log(pullDeltaX)
 
             // change the cursor to grabbing
             actualCard.style.cursor = 'grabbing'
@@ -321,7 +319,7 @@
                 }, { once: true }) //once es como hacerlo solo una vez, suscbribierse una vez
             
 
-                console.log("decision hecha")
+                //console.log("decision hecha")
                 
             } else {
                 actualCard.classList.add('reset')
