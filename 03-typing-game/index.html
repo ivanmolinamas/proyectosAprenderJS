@@ -160,7 +160,7 @@
     const $button = document.querySelector('#reload-button')
 
 
-    const INITIAL_TIME = 5;
+    const INITIAL_TIME = 30;
 
     const TEXT = 'the quick brow fox jumps over the lazi dog and midudev is trying to clone monkey type for fun and profit using vanilla js for the typing test speed';
 
@@ -168,7 +168,6 @@
     let words = []
     let currentTime = INITIAL_TIME;
 
-    
     
     initGame()
     initEvents()
@@ -297,7 +296,7 @@
 
         const currentWord = $currentWord.innerText.trim()
         $input.maxLength = currentWord.length // limiotamos el numero de letras
-        console.log({value: $input.value, currentWord })
+        //console.log({value: $input.value, currentWord })
 
         const $allLetters = $currentWord.querySelectorAll('letter')
         
@@ -327,10 +326,10 @@
     }
 
     function gameOver(){
-
+        // ocultamos juego y mostramos gameOver
         $game.style.display= 'none'
         $results.style.display = 'flex'
-
+        //recopilamos datos para estadisticas
         const correctWords = $paragraph.querySelectorAll('word.correct').length
         const correctLetter = $paragraph.querySelectorAll('letter.correct').length
         const incorrectLetter = $paragraph.querySelectorAll('letter.incorrect').length
@@ -341,6 +340,7 @@
             : 0
 
         const wpm = correctWords * 60 / INITIAL_TIME
+        // mostramos las estadisticas en las etiquetas HTML
         $wpm.textContent = wpm
         $accuracy.textContent = `${accuracy.toFixed(2)}%` 
     }
