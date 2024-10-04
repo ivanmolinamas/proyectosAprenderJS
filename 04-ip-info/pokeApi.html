@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeAPI Example</title>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+    <style>
+        main {
+           width: 80%;
+           margin: 0 auto;
+        }
+        #loading {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <form id="form">
+            <label>
+                Nombre del Pokémon:
+                <input id="pokemon-input" type="text" placeholder="pikachu">
+            </label>
+            <button type="submit" id="submit">Buscar Pokémon</button>
+        </form>
+        
+        
+
+        <div id="pokemon-info">
+            <h2>Información del Pokémon</h2>
+            <pre id="results"></pre>
+        </div>
+    </main>
+
+    <script>
+        const $form = document.querySelector('#form');
+        const $input = document.querySelector('#pokemon-input');
+        const $results = document.querySelector('#results');
+
+
+        $form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const pokeName = $input.value.toLowerCase(); //pasamos a minusculas
+            const url = 'https://pokeapi.co/api/v2/pokemon/'
+
+            try {
+                const respuesta = await fetch (`https://pokeapi.co/api/v2/pokemon/${pokeName}`);
+                if (!respuesta.ok){
+                    console.error('No hubo respuesta')
+                }
+                const pokeData = await respuesta.json();
+                $results.textContent = JSON.stringify(pokeData, null, 2)
+            } catch (err) {
+                $results.textContent = err.message;
+            }
+
+
+
+        })
+
+
+        /*
+        $form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const pokemonName = $input.value.toLowerCase(); // Convertimos el nombre a minúsculas
+            
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+                if (!response.ok) {
+                    throw new Error('No se encontró el Pokémon');
+                }
+                const pokemonData = await response.json();
+                $results.textContent = JSON.stringify(pokemonData, null, 2); // Mostramos los datos en formato JSON
+            } catch (error) {
+                $results.textContent = error.message; // Mostramos el error si ocurre
+            }
+        });
+
+        */
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do de Iván Molina</title>
+    <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+    <style>
+        h1{
+            text-align: center;
+        }
+        main {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .tarea{
+            background-color: rgb(184, 241, 241);
+            border-radius: 15px;
+            padding: 10px;
+            display: flex;
+            flex-direction: row;
+            margin: 5px;
+
+        }
+        .check{
+            height: 25px;
+            width: 25px;
+            align-self: center;
+        }
+        .texto{
+            font-size: 20px;
+            margin-left: 14px;
+        }
+
+        .tarea > input:checked ~ p {
+            text-decoration: line-through;
+            color: red;
+        }
+        #listComplete {
+            background: rgb(104, 110, 110);
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>To-do</h1>
+        <p>De Iván Molina Mas</p>
+        <!-- Formulario -->
+        <div class="add-container">
+            <form id="add">
+                <input type="text" id="todo" placeholder="Escriba aqui su tarea...">
+                <button type="submit" id="submit"> Añadir</button>
+            </form>
+        </div>
+
+        <!-- Lista to do -->
+        <div id="list">
+            <!-- 
+            <div class="tarea">
+                <input type="checkbox" class="check">
+                <p class="texto">Tarea para realizar</p>
+            </div>
+            -->
+        </div>
+
+        <!-- Lista completado -->
+        <div id="listComplete">
+        </div>
+    </main>
+</body>
+<script>
+    const $form = document.getElementById('add');
+    const $input = document.getElementById('todo')
+    const $submit = document.getElementById('submit');
+    const $list = document.getElementById('list');
+    const $listComplete = document.getElementById('listComplete')
+    
+
+    $form.addEventListener('submit', (event) => {
+        // prevenimos el acto de enviar
+        event.preventDefault()
+        //capturamos el texto del input
+        const toDo = $input.value
+        console.log(toDo)
+
+        //creamos el div 
+        const contenedorToDo = document.createElement('div')
+        contenedorToDo.classList.add('tarea')
+
+        //creamos el check box
+        const checkboxToDo = document.createElement('input')
+        checkboxToDo.type = 'checkbox'
+        checkboxToDo.classList.add('check')
+        checkboxToDo.classList.add('completo')
+
+        //creamos el elemento p
+        const pToDo = document.createElement('p')
+        pToDo.classList.add('texto');
+        pToDo.innerText = toDo; // añadimos el texto del input
+
+        //añadimos al div el checkbox y el p con la tarea
+        contenedorToDo.appendChild(checkboxToDo);
+        contenedorToDo.appendChild(pToDo);
+
+        //añadimos  el div a el elemento list
+        $list.appendChild(contenedorToDo);
+        //borramos el input
+        $input.value = '';
+    })
+    
+    //const $completo = getElementsByClassName('check');
+
+    // Delegación de eventos: Es una técnica más eficiente cuando creas elementos dinámicamente,
+    // ya que solo necesitas un listener para todos los elementos.
+    $list.addEventListener('change', (event) => {
+        if (event.target && event.target.matches('.check')) {
+            const divPadre = event.target.parentElement;
+            if (event.target.checked) {
+                divPadre.classList.add('completado');
+                // mover el div padre a listComplete
+                $listComplete.appendChild(divPadre);
+
+            } else {
+                divPadre.classList.remove('completado');
+                // mover el div padre de listComplete a list
+                $list.appendChild(divPadre)
+            }
+        }
+    });
+
+
+    // tarea contiene check y p
+    // una clase contiene el fondo para la tarea y sus propiedades
+    // si esta completa se le cambia fondo y propiedades
+
+</script>
+</html>

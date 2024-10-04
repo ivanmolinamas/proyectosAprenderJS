@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+    <style>
+        main {
+           width: 80%;
+           margin: 0 auto;
+        }
+        #loading {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+ <main>
+    <form id="form">
+        <label>
+        IP del usuario
+            <input required id="input" type="text"
+            placeholder="Introduce aqui la IP">
+            <small>Por ejemplo: 54.85.135.205</small>
+        </label>
+        <button type="submit" id="submit">
+            Buscar informacion de esta IP
+        </button>
+        <progress id="loading" />
+    </form>
+
+    <div>
+        <pre id="results">
+
+        </pre>
+    </div>
+</main>     
+</body>
+<script>
+
+
+    const fetchIpInfo = async (ip) => {
+        const url = `https://ejaz1-ip-geolocation-v1.p.rapidapi.com/${ip}`;
+        const options = {
+            method: 'GET',
+            headers: {
+                'x-rapidapi-key': '3857404433mshf62106ad828d7fdp120cc2jsn9857ee7a654c',
+                'x-rapidapi-host': 'ejaz1-ip-geolocation-v1.p.rapidapi.com'
+            }
+        };
+
+        try {
+            const response = await fetch(url, options);
+            const result = await response.json();  // Convertimos la respuesta en JSON
+            return result;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    const $form = document.querySelector('#form');
+    const $input = document.querySelector('#input');
+    const $submit = document.querySelector('#submit');
+    const $loading = document.querySelector('#loading');
+    const $results = document.querySelector('#results');
+
+    $form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const { value } = $input;
+        if (!value) return;
+
+        // Bloquear el botón y mostrar el estado de carga
+        $submit.setAttribute('disabled', '');
+        $submit.setAttribute('aria-busy', 'true');
+        $loading.style.display = 'block';
+
+        const ipInfo = await fetchIpInfo(value);  // Llamada a la API con la IP introducida
+
+        if (ipInfo) {
+            $results.innerHTML = JSON.stringify(ipInfo, null, 2);  // Mostramos la respuesta en el <pre>
+        } else {
+            $results.innerHTML = 'Hubo un error al obtener la información.';
+        }
+
+        // Restaurar el botón y ocultar el estado de carga
+        $submit.removeAttribute('disabled');
+        $submit.removeAttribute('aria-busy');
+        $loading.style.display = 'none';
+    });
+
+
+    ///////
+    /*
+    const url = 'https://ejaz1-ip-geolocation-v1.p.rapidapi.com/getip'
+
+    const OPTIONS = {
+        method: 'GET',
+        headers: {
+            'x-rapidapi-key': '3857404433mshf62106ad828d7fdp120cc2jsn9857ee7a654c',
+            'x-rapidapi-host': 'ejaz1-ip-geolocation-v1.p.rapidapi.com'
+        }
+      };
+
+      const fetchIpInfo = ip => {
+        return fetch(ip, OPTIONS )
+        .then (res => res.json())
+        .catch (err => console.error(err))
+      }
+
+      const $form = document.querySelector('#form')
+      const $input = document.querySelector('#input')
+      const $submit = document.querySelector('#submit')
+      const $loading = document.querySelector('#loading')
+      const $results = document.querySelector('#results')
+
+      $form.addEventListener('submit', async (event) => {
+        event.preventDefault()
+        const {value} = $input
+        if (!value) return
+
+        //mejoramos la experiencia bloqueando logo y mostrando que carga
+        $submit.setAttribute('disabled','')
+        $submit.setAttribute('aria-bussy', 'true')
+        $loading.style.display = 'block'
+
+        const ipInfo = await fetchIpInfo(value)
+
+        if (ipInfo){
+            $results.innerHTML = JSON.stringify(ipInfo, null , 2)
+        }
+
+
+        // volvemos el boton y loading a la normalidad
+        $submit.removeAttribute('disabled')
+        $submit.removeAttribute('aria-bussy')
+        $loading.style.display = 'none'
+      })
+
+      */
+</script>
+
+</html>
+
+
+

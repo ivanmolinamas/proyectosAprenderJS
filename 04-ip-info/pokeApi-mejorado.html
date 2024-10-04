@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Fetch Example</title>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+    <style>
+        main {
+           width: 80%;
+           margin: 0 auto;
+        }
+        #loading {
+            display: none;
+        }
+        img{
+            height: 100px;
+            display: none;
+        }
+        #pokemon-data{
+            background-color: #fdfdfd;
+            border-radius: 15px;
+        }
+        .center{
+            margin: 0 auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <form id="form">
+        <label>
+        Nombre del Pokémon:
+            <input required id="input" type="text"
+            placeholder="Introduce aquí el nombre">
+            <small>Por ejemplo: pikachu</small>
+        </label>
+        <button type="submit" id="submit">
+            Buscar información del Pokémon
+        </button>
+        <progress id="loading"></progress>
+    </form>
+
+    <!-- Elementos donde mostraremos los datos del Pokémon -->
+    <div id="pokemon-data">
+        <h3 id="pokemon-name" class="center"></h3>
+        <img id="pokemon-image" class="center" src="" alt="Imagen del Pokémon">
+        <p id="pokemon-type" class="center"></p>
+        <p id="pokemon-info" class="center"></p>
+    </div>
+
+    <!-- Mantenemos el contenedor para mostrar el JSON bruto también -->
+    <div>
+        <pre id="results"></pre>
+    </div>
+</main>     
+</body>
+<script>
+    const $form = document.querySelector('#form')
+    const $input = document.querySelector('#input')
+    const $submit = document.querySelector('#submit')
+    const $loading = document.querySelector('#loading')
+    const $results = document.querySelector('#results')
+
+    // Elementos del DOM donde se insertarán los datos del Pokémon
+    const $pokemonName = document.querySelector('#pokemon-name');
+    const $pokemonImage = document.querySelector('#pokemon-image');
+    const $pokemonType = document.querySelector('#pokemon-type');
+    const $pokemonInfo = document.querySelector('#pokemon-info');
+
+    const fetchPokemonData = async (pokemonName) => {
+        const url = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Error: No se encontró el Pokémon "${pokemonName}"`);
+            }
+            return await response.json(); // Parseamos la respuesta a JSON
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    };
+
+    $form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const { value } = $input;
+        if (!value) return;
+
+        // Mostramos el indicador de carga y desactivamos el botón
+        $submit.setAttribute('disabled', '');
+        $submit.setAttribute('aria-busy', 'true');
+        $loading.style.display = 'block';
+
+        // Llamada a la función que obtiene los datos del Pokémon
+        const pokemonData = await fetchPokemonData(value.toLowerCase());
+
+        // Si se obtiene información del Pokémon, la mostramos en el DOM
+        if (pokemonData) {
+           // $results.innerHTML = JSON.stringify(pokemonData, null, 2); // Mostramos el JSON completo
+            $pokemonName.textContent = pokemonData.name.toUpperCase(); // Nombre en mayúsculas
+            $pokemonImage.src = pokemonData.sprites.front_default; // Imagen del Pokémon
+            $pokemonImage.alt = `Imagen de ${pokemonData.name}`; // Etiqueta alt descriptiva
+            // mostramos la imagen
+            $pokemonImage.style.display = ('block')
+            // Crear un párrafo con el tipo del Pokémon
+            const types = pokemonData.types.map(typeInfo => typeInfo.type.name).join(', ');
+            $pokemonType.innerText = `Tipo: ${types}`;
+            $pokemonInfo.textContent = `Peso: ${pokemonData.weight} | Altura: ${pokemonData.height}`; // Información adicional
+            $results.textContent = '';
+        } else {
+            $results.textContent = 'No se encontró ningún Pokémon con ese nombre';
+            $pokemonName.textContent = '';
+            $pokemonImage.src = '';
+            $pokemonImage.alt = '';
+            $pokemonInfo.textContent = '';
+            $pokemonType.textContent = '';
+        }
+
+        // Restauramos el botón y ocultamos el indicador de carga
+        $submit.removeAttribute('disabled');
+        $submit.removeAttribute('aria-busy');
+        $loading.style.display = 'none';
+    });
+</script>
+</html>
