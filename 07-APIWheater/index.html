@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Weather</title>
+    <style>
+        #vVel::after {
+            content: 'km/h';
+        }
+
+        body {
+            background-color: rgb(26, 36, 90);
+            color: rgb(236, 249, 250);
+            text-align: center;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 10px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .bg-red {
+            background: linear-gradient(45deg, #90e2a9, #54b8f1);
+            width: 150px;
+            height: 150px;
+            border-radius: 15px;
+            align-items: center;
+            justify-content: center; 
+            align-self: center;
+ 
+        }
+
+        
+        .textBig{
+            font-size: xx-large;
+        }
+        .textBig1{
+            font-size: large;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Weather de Zaragoza</h1>
+    <div class="grid">
+        <div class="bg-red">
+            <img id="cicon">
+            <p><span id="cDescripcion" class="textBig1"></span></p>
+        </div>
+        <div class="bg-red">
+            <p>
+                <span id="tActual" class="textBig"></span>
+            </p>
+            <p>
+                <span id="tHumedad" class="textBig"></span>
+            </p>
+        </div>
+        <div class="bg-red">
+            <p>
+                <span id="vDir" class="textBig"></span>
+            </p>
+            <p>
+                <p><span id="cEstado"></span></p>
+                <span id="vVel" class="textBig"></span>
+            </p>
+        </div>
+    </div>
+    <p>Ultima actualizcion: <span id="timeStamp"></span></p>
+    
+
+
+</body>
+
+</html>
+
+<script>
+
+    const callApi = "https://api.openweathermap.org/data/2.5/weather?id=3104324&appid=321cc9badd519131c9b420021e09813d&units=metric&lang=es"
+
+    const $json = document.getElementById('json');
+    const $cielo = document.getElementById('cielo');
+    const $tActual = document.getElementById('tActual');
+
+    function fetchWeatherData() {
+        fetch(callApi)
+            .then(response => response.json())
+            .then(data => {
+                //$json.textContent = JSON.stringify(data, null, 2)
+                console.log(data);
+                let tempArray = [data.main.temp_min, data.main.temp_max, data.main.temp, data.main.humidity];
+                // obtengo el estado del cielo
+                let sky = [data.weather[0].id, data.weather[0].main, data.weather[0].description, data.weather[0].icon]
+                let wind = [data.wind.speed, data.wind.deg] //velocidad y grados
+                // Mostrar el array creado
+                console.log(tempArray);
+                console.log(sky);
+                console.log(wind);
+                ponerTemperatura(tempArray)
+                ponerCielo(sky)
+
+                ponerViento(wind);
+            })
+
+            .catch(error => {
+                console.error('Error al obtener los datos:', error)
+                $json.textContent = "Error la cargar los datos"
+            })
+            obtenerHoraActual()
+    }
+
+    setInterval(fetchWeatherData(),20000)
+    
+
+    function ponerTemperatura(array) {
+        const $tMax = document.getElementById('tMax');
+        const $tMin = document.getElementById('tMin');
+        const $tActual = document.getElementById('tActual');
+        const $tHumedad = document.getElementById('tHumedad');
+        //Variables para añadir
+        const grados = "ºC";
+        const separador = " ";
+
+        // se muestra en el HTML
+        //$tMin.innerText += separador + array[0] + grados;
+        //$tMax.innerText +=  separador + array[1] + grados;
+        $tActual.innerText += separador + array[2] + grados;
+        $tHumedad.innerText += separador + array[3] + '%';
+    }
+
+    function ponerCielo(array) {
+        const urlIcon = "https://openweathermap.org/img/wn/" + array[3] + "@2x.png";
+        const $cEstado = document.getElementById('cEstado');
+        const $cDescripcion = document.getElementById('cDescripcion');
+        const $cicon = document.getElementById('cicon');
+
+
+        // se muestra en el HTML
+        //$cEstado.innerText += array[1];
+        $cDescripcion.innerText += array[2];
+        $cicon.setAttribute('src', urlIcon);
+    }
+
+    function ponerViento(viento) {
+        const $vVel = document.getElementById('vVel')
+        const $vDir = document.getElementById('vDir')
+        var dirViento = ""
+
+        function direccionViento(grados) {
+            switch (true) {
+                case (grados >= 0 && grados < 22.5) || (grados >= 337.5 && grados <= 360):
+                    return "N";
+                case (grados >= 22.5 && grados < 67.5):
+                    return "NE";
+                case (grados >= 67.5 && grados < 112.5):
+                    return "E";
+                case (grados >= 112.5 && grados < 157.5):
+                    return "SE";
+                case (grados >= 157.5 && grados < 202.5):
+                    return "S";
+                case (grados >= 202.5 && grados < 247.5):
+                    return "SW";
+                case (grados >= 247.5 && grados < 292.5):
+                    return "W";
+                case (grados >= 292.5 && grados < 337.5):
+                    return "NW";
+                default:
+                    return "Dirección desconocida";
+            }
+        }
+
+        let grados = direccionViento(viento[1]);
+        console.log(grados)
+        $vVel.innerText = viento[0]
+        $vDir.innerText = grados;
+    }
+
+
+    function obtenerHoraActual(){
+        let now = new Date;
+        const hours = now.getHours();      // Hora (0-23)
+        const minutes = now.getMinutes();  // Minutos (0-59)
+        const seconds = now.getSeconds();  
+        const $timeStamp = document.getElementById('timeStamp')
+        $timeStamp.textContent = hours + ":" + minutes + ":" + seconds; 
+
+
+    }
+</script>

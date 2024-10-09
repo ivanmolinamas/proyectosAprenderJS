@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async Await</title>
+</head>
+<body>
+    <h2>Asycn Await en JS</h2>
+
+    <script>
+        function descargarNuevosClientes() {
+            return new Promise( resolve => {
+                console.log('Descargando clientes... espere...')
+
+                setTimeout( () =>{
+                    resolve('Los clientes fueron descargados')
+                },5000);
+            })
+        }
+
+        function descargarNuevosPedidos() {
+            return new Promise( resolve => {
+                console.log('Descargando pedidos... espere...')
+
+                setTimeout( () =>{
+                    resolve('Los pedidos fueron descargados')
+                },8000);
+            })
+        }
+
+
+        async function app() {
+            try{
+                /*
+                para un unico await
+                const resultado = await descargarNuevosClientes();
+                console.log(resultado);
+                */
+
+                
+                //Para hacer una doble await
+                const resultado = await Promise.all([descargarNuevosClientes(),descargarNuevosPedidos() ]);
+                console.log(resultado[0]);
+                console.log(resultado[1])
+                
+
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        app();
+
+        console.log('Este codigo no se bloquea')
+
+
+
+    </script>
+</body>
+</html>

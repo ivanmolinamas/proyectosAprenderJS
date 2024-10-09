@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do de Iván Molina</title>
+    <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+    <style>
+        h1, h5{
+            text-align: center;
+        }
+        
+        main {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .tarea {
+            background-color: rgb(184, 223, 241);
+            border-radius: 15px;
+            padding: 10px;
+            display: flex;
+            align-items: center; /* Alinea los elementos verticalmente */
+            justify-content: space-between; /* Distribuye los elementos */
+            margin: 5px;
+        }
+        
+        .tarea .content {
+            display: flex;
+            align-items: center;
+        }
+        
+        .tarea input {
+            height: 25px;
+            width: 25px;
+            margin-right: 10px; /* Separación entre el checkbox y el texto */
+        }
+        
+        .tarea p {
+            font-size: 20px;
+            margin: 0; /* Quita márgenes extra */
+        }
+        
+        .tarea button {
+            margin-left: auto; /* Mueve el botón a la derecha */
+        }
+    
+        [data-completado="true"] {
+            background: rgb(93, 100, 100); /* cambio fondo*/
+            /* detalle para el texto con linea */
+                p {
+                    text-decoration: line-through;
+                        color: rgb(155, 4, 4);         
+                }  
+        }
+        #list{
+            min-height: 100px;
+            background-color: rgb(245, 248, 250);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            p {
+                display: block;
+                text-align: center;
+            }
+            
+        }
+        #listComplete {
+            min-height: 100px;
+            background-color: rgb(245, 248, 250);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            p {
+                display: block;
+                text-align: center;
+            }
+        }
+        .delete{
+            background-color: rgb(253, 27, 27);
+
+        }
+        /*
+        .tarea > input:checked ~ p {
+            text-decoration: line-through;
+            color: red;
+        }*/
+       
+    </style>
+</head>
+<body>
+    <main>
+        <h1>To-do</h1>
+        <p>Ahora con memoria!</p>
+
+        <!-- Formulario -->
+        <div class="add-container">
+            <form id="add">
+                <input type="text" id="todo" placeholder="Escriba aqui su tarea...">
+                <button type="submit" id="submit"> Añadir</button>
+            </form>
+        </div>
+
+        <!-- Lista to do -->
+        <div id="list">
+            <h5>Por hacer</h5>
+            <p id="sinTareas">Sin tareas todavia...</p>
+            <!-- 
+            <div class="tarea" data-completado="false">
+                <input type="checkbox" class="check">
+                <p>Tarea para realizar</p>
+                <button class="delete">X</button>
+            </div>
+            -->
+        </div>
+
+        <!-- Lista completado -->
+        <div id="listComplete">
+            <h5>Completado</h3>
+            <p id="sinCompletadas">No hay tareas completadas</p>
+            
+        </div>
+    </main>
+</body>
+<script>
+    const $form = document.getElementById('add');
+    const $input = document.getElementById('todo')
+    const $submit = document.getElementById('submit');
+    const $list = document.getElementById('list');
+    const $listComplete = document.getElementById('listComplete')
+    
+
+    $form.addEventListener('submit', (event) => {
+        // prevenimos el acto de enviar
+        event.preventDefault()
+        //capturamos el texto del input
+        const toDo = $input.value
+        //creamos la tarea a traves de una funcion
+        crearTarea(toDo, false); //como llega del formulario, ponemos falso
+
+        comprobarListaVacia();
+        //borramos el input
+        $input.value = '';
+        guardarTareas()
+    })
+
+
+    function crearTarea(texto, completado) {
+        //creamos el div 
+        const contenedorToDo = document.createElement('div')
+        contenedorToDo.classList.add('tarea')
+        contenedorToDo.setAttribute ('data-completado', completado)
+
+        //creamos el check box
+        const checkboxToDo = document.createElement('input')
+        checkboxToDo.type = 'checkbox'
+        checkboxToDo.classList.add('check')
+        if(completado === true){
+            checkboxToDo.checked = true
+        }
+
+        //creamos el elemento p
+        const pToDo = document.createElement('p')
+        //pToDo.setAttribute('contentEditable', true)
+        pToDo.innerText = texto; // añadimos el texto
+
+        // creamos el boton borrar
+        const bDelete = document.createElement('button');
+        bDelete.classList.add('delete');
+        bDelete.textContent = 'X';
+
+        //añadimos al div el checkbox y el p con la tarea
+        contenedorToDo.appendChild(checkboxToDo);
+        contenedorToDo.appendChild(pToDo);
+        contenedorToDo.appendChild(bDelete);
+
+        if(completado === false ){
+            //añadimos a pendiente
+            $list.appendChild(contenedorToDo);
+        } else {
+            // añadimos a completo
+            $listComplete.appendChild(contenedorToDo)
+        }
+    }
+
+
+
+
+
+    
+    
+
+    // Delegación de eventos: Es una técnica más eficiente cuando creas elementos dinámicamente,
+    // ya que solo necesitas un listener para todos los elementos.
+    function handleCheckChange (event) {
+        if (event.target && event.target.matches('.check')) {
+            const divPadre = event.target.parentElement;
+            if (event.target.checked) {
+                // añadimos true al atributo data-completado
+                divPadre.dataset.completado = 'true'
+                // mover el div padre a listComplete
+                $listComplete.appendChild(divPadre);
+
+            } else {
+                // modificamos el atributo data-completado
+                divPadre.dataset.completado = 'false'
+                // mover el div padre de listComplete a list
+                $list.appendChild(divPadre)
+            }
+        }
+        //comprobamos si la lista esta vacia
+        comprobarListaVacia()
+    };
+
+    // listener para ambas listas
+    $list.addEventListener('change', handleCheckChange)
+    $listComplete.addEventListener('change', handleCheckChange)
+
+
+    // hacer que cuando hay un elemento se quite el texto de la caja de la lista
+    function comprobarListaVacia() {
+        $sinTareas = document.getElementById('sinTareas')
+        $sinCompletadas = document.getElementById('sinCompletadas')
+        //comprobamos lista por hacer
+        if($list.childElementCount  > 2){
+            $sinTareas.style.display = 'none'
+        }else{
+            $sinTareas.style.display = 'block'
+        }
+
+        if($listComplete.childElementCount > 2){
+            $sinCompletadas.style.display = 'none'
+        }else{
+            $sinCompletadas.style.display = 'block'
+        }
+        //guardamos los cambios
+        guardarTareas();
+    }
+
+    function borrarTarea (event) {
+       //buscamos el padre del boton borrar 
+       const divTarea = event.target.parentElement; 
+       // si el evento objetivo contiene la clase delete
+        if(event.target.classList.contains('delete')){
+         //borramos
+        divTarea.remove()   
+        }
+        //comprobamos si la lista esta vacia
+        comprobarListaVacia()
+    }
+
+    $list.addEventListener('click', borrarTarea)
+    $listComplete.addEventListener('click', borrarTarea)
+    
+
+    // funciones para guardar en memoria Local Storage
+
+    function guardarTareas() {
+        //constantes array 
+        const tareasPendientes = []
+        const tareasAcabadas = []
+
+        // tareas pendientes
+        document.querySelectorAll('#list .tarea').forEach( tarea => {
+            tareasPendientes.push({
+                texto: tarea.querySelector('p').innerText,
+                completado: false
+            })
+        })
+
+        // tareas completadas
+        document.querySelectorAll('#listComplete .tarea').forEach( tarea => {
+            tareasAcabadas.push({
+                texto: tarea.querySelector('p').innerText,
+                completado: true
+            })
+        })
+
+        //guardamos las listas en Local Storage
+        localStorage.setItem('tareasPendientes', JSON.stringify(tareasPendientes)) || []
+        localStorage.setItem('tareasCompletadas', JSON.stringify(tareasAcabadas)) || []
+    }
+
+    function cargarTareas() {
+        const tareasPendientes = JSON.parse(localStorage.getItem('tareasPendientes')) || []
+        const tareasAcabadas = JSON.parse(localStorage.getItem('tareasCompletadas')) || []
+
+        tareasPendientes.forEach(tarea => crearTarea(tarea.texto,false))
+        tareasAcabadas.forEach(tarea => crearTarea(tarea.texto,true))
+    }
+
+
+// Inicialización
+    window.addEventListener('load', () => {
+        cargarTareas();
+        comprobarListaVacia();
+    });
+
+
+</script>
+</html>

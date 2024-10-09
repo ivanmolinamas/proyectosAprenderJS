@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promesas en JS</title>
+</head>
+<body>
+    <script>
+
+        auth = false
+
+        const usuarioAutentificado = new Promise ( (resolve, reject) => {
+            //const auth = true
+
+            if (auth) {
+                resolve('Usuario autentificado')
+            } else {
+                reject('Error con el usuario')
+            }
+        })
+
+        // si se cumple se ejecuta
+        usuarioAutentificado
+            .then ((resultado) => console.log(resultado))
+            .catch((error) => console.log(error));
+        
+        /*
+            .then ( function(resultado) {
+                console.log(resultado)
+            })*/
+           
+            /*
+            .catch(function(error) { // si es reject
+                console.log(error)
+            })
+        */
+
+
+
+
+        // En los promises existen 3 valores
+        // pending: No se ha cumplido pero tampoco se ha rechazado
+        // Fulfilled: Ya se ha cumplido
+        // Rejected: Se ha rechazado o no se pudo cumplir
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperatura de la Raspberry</title>
+
+    <style>
+        h1, h2 {
+            text-align: center;
+        }
+        .contenedor {
+            background-color: aquamarine;
+            border-radius: 15px;
+            width:fit-content;
+            text-align: center;
+            height: 100px;
+            align-content: center;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        .info{
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Estación Metereológica</h1>
+        <h2>Raspberry Pi</h2>
+
+        <div class="contenedor">
+            <p>Temperatura: <span class="info" id="temperatura">Cargando...</span> °C</p>
+            <p>Humedad: <span class="info" id="humedad">Cargando...</span> %</p>
+            <p>Ultima actualizacion: <span id="time"></span></p>
+        </div>
+        
+    </main>
+
+    <script>
+        // url de la API
+        const apiURL = 'http://192.168.1.42:5000/data';
+
+        // Variables del DOM
+        const $temperatura = document.getElementById('temperatura');
+        const $humedad = document.getElementById('humedad');
+        const $time = document.getElementById('time')
+        // Segundos (0-59) 
+
+        
+        // funcion para obtener los datos del sensor y actualizar el DOM
+        function getSensorData() {
+        const now = new Date;
+        const hours = now.getHours();      // Hora (0-23)
+        const minutes = now.getMinutes();  // Minutos (0-59)
+        const seconds = now.getSeconds();  
+
+
+            fetch(apiURL)
+                .then(response=> response.json()) // convierte la respuesta en formato JSON
+                .then(data => {
+                    //Actualiza el DOM los cons datos obtenidos
+                    $temperatura.textContent = data.temperature.toFixed(1);
+                    $humedad.textContent = data.humidity.toFixed(1);
+
+                    const hora = hours +':' +minutes +':'+ seconds
+
+                    $time.innerHTML = hora
+
+                })
+                .catch(error =>{
+                    console.error('Error al obtener los datos: ', error)
+                });
+        }
+
+
+        // se llama la funcion
+        getSensorData();
+
+        // Actualiza cada 5 segundos
+        setInterval(getSensorData, 15000);  
+
+    </script>
+</body>
+</html>
