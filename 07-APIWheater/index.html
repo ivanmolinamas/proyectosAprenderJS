@@ -46,7 +46,7 @@
 </head>
 
 <body>
-    <h1>Weather de Zaragoza</h1>
+    <h1>El tiempo en Zaragoza</h1>
     <div class="grid">
         <div class="bg-red">
             <img id="cicon">
@@ -163,11 +163,11 @@
                 case (grados >= 157.5 && grados < 202.5):
                     return "S";
                 case (grados >= 202.5 && grados < 247.5):
-                    return "SW";
+                    return "SO";
                 case (grados >= 247.5 && grados < 292.5):
-                    return "W";
+                    return "O";
                 case (grados >= 292.5 && grados < 337.5):
-                    return "NW";
+                    return "NO";
                 default:
                     return "Dirección desconocida";
             }
