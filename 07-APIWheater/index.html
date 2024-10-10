@@ -7,7 +7,7 @@
     <title>API Weather</title>
     <style>
         #vVel::after {
-            content: 'km/h';
+            content: 'm/s';
         }
 
         body {
@@ -15,9 +15,10 @@
             color: rgb(236, 249, 250);
             text-align: center;
         }
+
         .grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr 2fr 1fr;
             gap: 10px;
             padding: 10px;
             margin: 0 auto;
@@ -26,21 +27,35 @@
 
         .bg-red {
             background: linear-gradient(45deg, #90e2a9, #54b8f1);
-            width: 150px;
+            width: max;
             height: 150px;
             border-radius: 15px;
             align-items: center;
-            justify-content: center; 
+            justify-content: center;
             align-self: center;
  
         }
 
-        
-        .textBig{
+
+        .textBig {
             font-size: xx-large;
         }
-        .textBig1{
-            font-size: large;
+
+        .textBig1 {
+            font-size: 50px;
+        }
+
+        .grados {
+            font-size: 45px;
+        }
+        .inline{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+        .sinMargin{
+             padding: 0;
+                margin: 0;
         }
     </style>
 </head>
@@ -49,38 +64,52 @@
     <h1>El tiempo en Zaragoza</h1>
     <div class="grid">
         <div class="bg-red">
-            <img id="cicon">
+            
             <p><span id="cDescripcion" class="textBig1"></span></p>
         </div>
         <div class="bg-red">
-            <p>
-                <span id="tActual" class="textBig"></span>
-            </p>
-            <p>
+            <div class="inline">
+                <img id="cicon">
+                <p>
+                    <span id="tActual" class="grados"></span>
+                </p>
+            </div>
+            <p class="sinMargin">
                 <span id="tHumedad" class="textBig"></span>
             </p>
         </div>
         <div class="bg-red">
             <p>
-                <span id="vDir" class="textBig"></span>
+                <span id="vDir" class="textBig textBig1"></span>
             </p>
             <p>
-                <p><span id="cEstado"></span></p>
-                <span id="vVel" class="textBig"></span>
+            <p><span id="cEstado"></span></p>
+            <span id="vVel" class="textBig"></span>
             </p>
         </div>
     </div>
     <p>Ultima actualizcion: <span id="timeStamp"></span></p>
-    
 
 
+    <p id="json"></p>
+
+    <div id="openweathermap-widget-11"></div>
+    <script src='//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/d3.min.js'></script>
+    <script>
+        window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+        window.myWidgetParam.push({ id: 11, cityid: '3104324', appid: '321cc9badd519131c9b420021e09813d', units: 'metric', containerid: 'openweathermap-widget-11', });
+        (function () {
+            var script = document.createElement('script');
+            script.async = true; script.charset = "utf-8"; script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator.js";
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+        })();</script>
 </body>
 
 </html>
 
 <script>
 
-    const callApi = "https://api.openweathermap.org/data/2.5/weather?id=3104324&appid=321cc9badd519131c9b420021e09813d&units=metric&lang=es"
+    const callApi = "https://api.openweathermap.org/data/2.5/weather?id=3104324&appid=321cc9badd519131c9b420021e09813d&units=metric&lang=sp"
 
     const $json = document.getElementById('json');
     const $cielo = document.getElementById('cielo');
@@ -97,24 +126,26 @@
                 let sky = [data.weather[0].id, data.weather[0].main, data.weather[0].description, data.weather[0].icon]
                 let wind = [data.wind.speed, data.wind.deg] //velocidad y grados
                 // Mostrar el array creado
-                console.log(tempArray);
-                console.log(sky);
-                console.log(wind);
+                //console.log(tempArray);
+                //console.log(sky);
+                //console.log(wind);
                 ponerTemperatura(tempArray)
                 ponerCielo(sky)
-
                 ponerViento(wind);
+                obtenerHoraActual();
             })
-
             .catch(error => {
                 console.error('Error al obtener los datos:', error)
                 $json.textContent = "Error la cargar los datos"
             })
-            obtenerHoraActual()
+
     }
 
-    setInterval(fetchWeatherData(),20000)
-    
+    const minutos = 15
+    const segInterval = minutos * 60 * 1000
+    fetchWeatherData()
+    setInterval(fetchWeatherData, segInterval)
+
 
     function ponerTemperatura(array) {
         const $tMax = document.getElementById('tMax');
@@ -128,8 +159,8 @@
         // se muestra en el HTML
         //$tMin.innerText += separador + array[0] + grados;
         //$tMax.innerText +=  separador + array[1] + grados;
-        $tActual.innerText += separador + array[2] + grados;
-        $tHumedad.innerText += separador + array[3] + '%';
+        $tActual.innerText = separador + Math.round(array[2]) + grados;
+        $tHumedad.innerText = separador + array[3] + '%';
     }
 
     function ponerCielo(array) {
@@ -141,7 +172,7 @@
 
         // se muestra en el HTML
         //$cEstado.innerText += array[1];
-        $cDescripcion.innerText += array[2];
+        $cDescripcion.innerText = array[2];
         $cicon.setAttribute('src', urlIcon);
     }
 
@@ -175,19 +206,53 @@
 
         let grados = direccionViento(viento[1]);
         console.log(grados)
-        $vVel.innerText = viento[0]
+        $vVel.innerText = viento[0].toFixed(1)
         $vDir.innerText = grados;
     }
 
 
-    function obtenerHoraActual(){
+    function obtenerHoraActual() {
         let now = new Date;
         const hours = now.getHours();      // Hora (0-23)
         const minutes = now.getMinutes();  // Minutos (0-59)
-        const seconds = now.getSeconds();  
+        const seconds = now.getSeconds();
         const $timeStamp = document.getElementById('timeStamp')
-        $timeStamp.textContent = hours + ":" + minutes + ":" + seconds; 
+        $timeStamp.textContent = hours + ":" + minutes + ":" + seconds;
+    }
+    /*
+      API metereologica para 4 dias
+      */
 
 
+
+    const apiForecast = "https://api.openweathermap.org/data/2.5/forecast?id=3104324&appid=321cc9badd519131c9b420021e09813d&units=metric&lang=sp"
+
+
+    obtenerPronostico();
+
+    function obtenerPronostico() {
+        fetch(apiForecast)
+            .then(response => response.json())
+            .then(data => {
+                //$json.textContent = JSON.stringify(data, null, 2)
+                console.log(data);
+                let tiempoHoras = [data.list]
+                console.log(tiempoHoras)
+                previsionDias(tiempoHoras);
+            })
+            .catch(error => {
+                console.error('Error al obtener los datos:', error)
+                $json.textContent = "Error la cargar los datos"
+            })
+
+    }
+
+
+    function previsionDias(pronosticoJson) {
+        // en el array, cada {} es una hora dt_txt da fecha y hora
+
+        let primerPronostico = pronosticoJson[0][0].dt_txt;
+
+        console.log(primerPronostico);
     }
 </script>
